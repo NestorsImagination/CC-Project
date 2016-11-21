@@ -39,9 +39,11 @@ Con esto queda el sistema provisionado de forma básica, de forma que se clona e
 
 # Enlaces seguidos
 
+* http://jj.github.io/CC/documentos/temas/Gestion_de_configuraciones
 * https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 * https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
 * http://www.mbejda.com/deploying-node-applications-with-ansible/
 * https://adamcod.es/2014/09/23/vagrant-ansible-quickstart-tutorial.html
 * http://docs.ansible.com/ansible/guide_aws.html
+* http://stackoverflow.com/questions/11769219/check-out-a-git-repository-with-chef
 * Otros varios
