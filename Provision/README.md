@@ -1,10 +1,14 @@
 # Provisionamiento
 
-He usado una máquina en AWS EC2 de Ubuntu para probar el provisionamiento mediante Ansible:
+A continuación describo los procedimientos a seguir para aprovisionar un sistema con los elementos básicos necesarios para desplegar el proyecto. He usado una máquina en AWS EC2 de Ubuntu para probar el provisionamiento mediante Ansible y Chef:
 
 ![Captura máquina AWS Ubuntu](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Maquina.png)
 
-Una vez creada, me conecto con "ssh -i CCDPG0.pem ubuntu@ec2-35-156-54-87.eu-central-1.compute.amazonaws.com", siendo CCDPG0 la clave que me proporcionó AWS al crear la instancia. Al conectarme, creo las carpetas "Provision" y "project". Creo una clave ssh con "ssh-keygen -t rsa -b 4096 -C 'email'". Una vez creada (dos archivos, uno de ellos terminado en .pub) la añado al agente ssh usando "eval "$(ssh-agent -s)" y a continuación "ssh-add 'clave'", siendo 'clave' el archivo generado que no acaba en .pub. En Github, en la pestaña Configuración del repositorio (NestorsImagination/Sample-Multiplayer-Shooter), en el apartado Deploy keys, añado la clave.pub generada.
+Una vez creada, me conecto con "ssh -i CCDPG0.pem ubuntu@ec2-35-156-54-87.eu-central-1.compute.amazonaws.com", siendo CCDPG0 la clave que me proporcionó AWS al crear la instancia.
+
+## Ansible
+
+Al conectarme, creo las carpetas "Provision" y "project". Creo una clave ssh con "ssh-keygen -t rsa -b 4096 -C 'email'". Una vez creada (dos archivos, uno de ellos terminado en .pub) la añado al agente ssh usando "eval "$(ssh-agent -s)" y a continuación "ssh-add 'clave'", siendo 'clave' el archivo generado que no acaba en .pub. En Github, en la pestaña Configuración del repositorio (NestorsImagination/Sample-Multiplayer-Shooter), en el apartado Deploy keys, añado la clave.pub generada.
 
 Lo siguiente es instalar Ansible. Para ello uso:
 
@@ -19,11 +23,19 @@ De vuelta a la carpeta Provision, pegar el archivo Playbook.yml de este reposito
 
 ![Ejecución ansible-playbook Playbook.yml](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Ansible.png)
 
-Con esto queda el sistema provisionado de forma básica (cuando el sistema esté desarrollado habrá que añadir más instrucciones para provisionarlo de forma completa).
+## Chef
+
+Tras instalar Ruby y Chef:
+
+![Chef instalado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefInst.png)
+
+Pegar la carpeta "chef" que se encuentra en este repositorio en la carpeta principal (/home/"ususario"/). Se deben modificar las rutas "/home/ubuntu/" de los archivos por la carpeta principal del sistema que se esta provisionando. Ejecutar chef-solo -c solo.rb y el sistema queda provisionado:
+
+![Chef ejecutado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefExe.png)
 
 # Notas
 
-He utilizado Ansible ya que parecía ser el más recomendado, pero podría haber usado otro cualquiera.
+Con esto queda el sistema provisionado de forma básica, de forma que se clona el repositorio del proyecto y se instalan los paquetes necesarios para poder ejecutar y desplegar archivos en Node.js. Cuando el proyecto esté más desarrollado habrá que añadir más instrucciones para provisionarlo de forma completa.
 
 # Enlaces seguidos
 
