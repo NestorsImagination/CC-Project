@@ -1,0 +1,37 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars:
+    - homeDir: /home/ubuntu
+    - appDir: project
+    - repo: Sample-Multiplayer-Shooter
+    - account: NestorsImagination
+    - privateKeyDir: /home/ubuntu
+    - privateKey: id_rsa
+
+  tasks:
+    - name: Install Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      with_items:
+        - build-essential
+        - npm
+        - nodejs
+        - git
+        - mcrypt
+        - nginx
+        - curl
+
+    - name: Install pm2
+      npm: name=pm2 global=yes production=yes
+
+    - name: Create APP Directory
+      file: path={{homeDir}}/{{appDir}} state=directory
+
+    - name: Copy Private Key
+      copy: src={{privateKeyDir}}/{{privateKey}} dest={{homeDir}} mode=0600
+
+    - name: Git Clone Repo
+      git: repo=git@github.com:{{account}}/{{repo}}.git dest={{homeDir}}/{{appDir}} update=yes force=yes accept_hostkey=yes key_file={{homeDir}}/{{privateKey}}
+      register: git_finished

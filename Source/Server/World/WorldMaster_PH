@@ -1,0 +1,1 @@
+Servicio que se encarga de la sincronización básica de los Jugadores en una Partida, y que se comunica con el MasterServer y el WorldSimulator para sincronizar de forma completa los Jugadores de la Partida.
