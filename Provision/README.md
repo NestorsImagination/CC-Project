@@ -8,12 +8,12 @@ Una vez creada, me conecto con "ssh -i CCDPG0.pem ubuntu@ec2-35-156-54-87.eu-cen
 
 Lo siguiente es instalar Ansible. Para ello uso:
 
-sudo apt-get install software-properties-common
-sudo apt-add-repository ppa:ansible/ansible
-sudo apt-get update
-sudo apt-get install ansible
+* sudo apt-get install software-properties-common
+* sudo apt-add-repository ppa:ansible/ansible
+* sudo apt-get update
+* sudo apt-get install ansible
 
-Para configurar Ansible, en la carpeta "/etc/ansible" hay que modificar "ansible.cfg" para que "sudo\_user sea el usuario root del sistema (por defecto "root", pero en estas máquinas se llama "ubuntu"). Sustituir el archivo "hosts" por el que se encuentra en este repositorio. Crear una carpeta "group\_vars" y pegar en ella el archivo "app.yml" que se encuentra en este repositorio.
+Para configurar Ansible, en la carpeta "/etc/ansible" hay que modificar "ansible.cfg" para que "sudo\_user" sea el usuario root del sistema (por defecto "root", pero en estas máquinas se llama "ubuntu"). Sustituir el archivo "hosts" por el que se encuentra en este repositorio. Crear una carpeta "group\_vars" y pegar en ella el archivo "app.yml" que se encuentra en este repositorio.
 
 De vuelta a la carpeta Provision, pegar el archivo Playbook.yml de este repositorio (recordar que lo que se desea es aprovisionar un sistema que usará Node.js principalmente en su implementación). Por último, usar el comando "ansible-playbook Playbook.yml" para ejecutar Ansible. Esto da un output como este:
 
