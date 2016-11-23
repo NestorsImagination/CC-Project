@@ -43,3 +43,36 @@ Servidor escrito en NodeJS que tiene un World Simulator asociado. Al iniciarse, 
 ## World Simulator
 
 Desarrollado con Unity, es un ejecutable que corre un mundo similar al de los clientes (ejecutado de modo que no se vean los gráficos para mejorar el rendimiento, ya que es innecesario) que recibirá los inputs de los clientes a través del World Master (usando Socket.IO) para simular los personajes jugadores y las entidades del mundo de forma sincronizada. También envía periódicamente a los jugadores el estado de las entidades (posición, vida de los jugadores, proyectiles, etc.), de forma que los clientes queden lo más sincronizados posible, y evita que un jugador haga trampas o quede desincronizado por problemas de latencia: es la posición de los jugadores en el World Simulator la que es tomada como real, y si en un cliente se comprueba que la posición del personaje jugador es diferente a la del World Simulator, el personaje jugador se moverá para tomar la posición dada por el World Simulator. Empezará una nueva partida cada vez que el World Master se lo pida, asociando cada cliente con un personaje jugador diferente.
+
+# Provisionamiento
+
+A continuación describo los procedimientos a seguir para aprovisionar un sistema con los elementos básicos necesarios para desplegar el proyecto, usando Chef o Ansible.
+
+## Chef
+
+Tras instalar Ruby y Chef:
+
+![Chef instalado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefInst.png)
+
+Pegar la carpeta "chef" que se encuentra en este repositorio en la carpeta principal (/home/"ususario"/). Se deben modificar las rutas "/home/ubuntu/" de los archivos por la carpeta principal del sistema que se esta provisionando. Ejecutar chef-solo -c solo.rb y el sistema queda provisionado:
+
+![Chef ejecutado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefExe.png)
+
+## Ansible
+
+Crear las carpetas "Provision" y "project". Para instalar Ansible:
+
+* sudo apt-get install software-properties-common
+* sudo apt-add-repository ppa:ansible/ansible
+* sudo apt-get update
+* sudo apt-get install ansible
+
+Para configurar Ansible, en la carpeta "/etc/ansible" hay que modificar "ansible.cfg" para que "sudo\_user" sea el usuario root del sistema (por defecto "root", pero en estas máquinas se llama "ubuntu"). Sustituir el archivo "hosts" por el que se encuentra en este repositorio. Crear una carpeta "group\_vars" y pegar en ella el archivo "app.yml" que se encuentra en este repositorio.
+
+De vuelta a la carpeta Provision, pegar el archivo Playbook.yml de este repositorio. Por último, usar el comando "ansible-playbook Playbook.yml" para ejecutar Ansible. Esto da un output como este:
+
+![Ejecución ansible-playbook Playbook.yml](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Ansible.png)
+
+## Notas
+
+Con esto queda el sistema provisionado de forma básica, de forma que se clona el repositorio del proyecto y se instalan los paquetes necesarios para poder ejecutar y desplegar archivos en Node.js. Cuando el proyecto esté más desarrollado habrá que añadir más instrucciones para provisionarlo de forma completa.

@@ -8,8 +8,6 @@
     - appDir: project
     - repo: Sample-Multiplayer-Shooter
     - account: NestorsImagination
-    - privateKeyDir: /home/ubuntu
-    - privateKey: id_rsa
 
   tasks:
     - name: Install Packages
@@ -33,5 +31,5 @@
       copy: src={{privateKeyDir}}/{{privateKey}} dest={{homeDir}} mode=0600
 
     - name: Git Clone Repo
-      git: repo=git@github.com:{{account}}/{{repo}}.git dest={{homeDir}}/{{appDir}} update=yes force=yes accept_hostkey=yes key_file={{homeDir}}/{{privateKey}}
+      git: repo=git@github.com:{{account}}/{{repo}}.git dest={{homeDir}}/{{appDir}} update=yes force=yes
       register: git_finished
