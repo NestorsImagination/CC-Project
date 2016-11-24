@@ -27,9 +27,6 @@
     - name: Create APP Directory
       file: path={{homeDir}}/{{appDir}} state=directory
 
-    - name: Copy Private Key
-      copy: src={{privateKeyDir}}/{{privateKey}} dest={{homeDir}} mode=0600
-
     - name: Git Clone Repo
       git: repo=git@github.com:{{account}}/{{repo}}.git dest={{homeDir}}/{{appDir}} update=yes force=yes
       register: git_finished
