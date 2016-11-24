@@ -1,7 +1,6 @@
 ---
 - hosts: localhost
-  connection: local
-  gather_facts: False
+  become: true
 
   vars:
     - homeDir: /home/ubuntu
@@ -28,5 +27,6 @@
       file: path={{homeDir}}/{{appDir}} state=directory
 
     - name: Git Clone Repo
-      git: repo=git@github.com:{{account}}/{{repo}}.git dest={{homeDir}}/{{appDir}} update=yes force=yes
+      git: repo=https://github.com/{{account}}/{{repo}}.git dest={{homeDir}}/{{appDir}} update=yes force=yes
       register: git_finished
+
