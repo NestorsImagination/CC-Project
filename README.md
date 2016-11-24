@@ -54,20 +54,15 @@ Tras instalar Ruby y Chef:
 
 ![Chef instalado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefInst.png)
 
-Pegar la carpeta "chef" que se encuentra en este repositorio en la carpeta principal (/home/"ususario"/). Se deben modificar las rutas "/home/ubuntu/" de los archivos por la carpeta principal del sistema que se esta provisionando. Ejecutar chef-solo -c solo.rb y el sistema queda provisionado:
+Pegar la carpeta "chef" de este repositorio en la carpeta principal (/home/"ususario"/). Se deben modificar las rutas "/home/ubuntu/" de los archivos por la carpeta principal del sistema que se esta provisionando. Ejecutar chef-solo -c solo.rb y el sistema queda provisionado:
 
 ![Chef ejecutado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefExe.png)
 
 ## Ansible
 
-Crear las carpetas "Provision" y "project". Para instalar Ansible:
+Crear las carpetas "Provision" y "project" en la carpeta principal. Instalar Ansible.
 
-* sudo apt-get install software-properties-common
-* sudo apt-add-repository ppa:ansible/ansible
-* sudo apt-get update
-* sudo apt-get install ansible
-
-Para configurar Ansible, en la carpeta "/etc/ansible" hay que modificar "ansible.cfg" para que "sudo\_user" sea el usuario root del sistema (por defecto "root", pero en estas máquinas se llama "ubuntu"). Sustituir el archivo "hosts" por el que se encuentra en este repositorio. Crear una carpeta "group\_vars" y pegar en ella el archivo "app.yml" que se encuentra en este repositorio.
+Para configurar Ansible, en la carpeta "/etc/ansible" hay que modificar "ansible.cfg" para que "sudo\_user" sea el usuario root del sistema (por defecto "root", pero en estas máquinas se llama "ubuntu"). Crear una carpeta "group\_vars" (si no existe) y pegar en ella el archivo "app.yml" que se encuentra en este repositorio.
 
 De vuelta a la carpeta Provision, pegar el archivo Playbook.yml de este repositorio. Por último, usar el comando "ansible-playbook Playbook.yml" para ejecutar Ansible. Esto da un output como este:
 
