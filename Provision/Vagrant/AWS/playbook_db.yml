@@ -1,0 +1,16 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Install Packages
+      apt: name={{ item }} update_cache=yes state=latest
+      sudo: yes
+      with_items:
+        - build-essential
+        - npm
+        - nodejs
+        - git
+        - nginx
+    - name: Install node-mysql
+      npm: name=node-mysql global=yes production=yes
