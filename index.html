@@ -76,7 +76,7 @@
 <p>Desarrollado con Unity, es un ejecutable que corre un mundo similar al de los clientes (ejecutado de modo que no se vean los gráficos para mejorar el rendimiento, ya que es innecesario) que recibirá los inputs de los clientes a través del World Master (usando Socket.IO) para simular los personajes jugadores y las entidades del mundo de forma sincronizada. También envía periódicamente a los jugadores el estado de las entidades (posición, vida de los jugadores, proyectiles, etc.), de forma que los clientes queden lo más sincronizados posible, y evita que un jugador haga trampas o quede desincronizado por problemas de latencia: es la posición de los jugadores en el World Simulator la que es tomada como real, y si en un cliente se comprueba que la posición del personaje jugador es diferente a la del World Simulator, el personaje jugador se moverá para tomar la posición dada por el World Simulator. Empezará una nueva partida cada vez que el World Master se lo pida, asociando cada cliente con un personaje jugador diferente.</p>
 
 <h1>
-<a id="provisionamiento" class="anchor" href="#provisionamiento" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Provisionamiento</h1>
+<a id="provisionamiento-con-chef-o-ansible" class="anchor" href="#provisionamiento-con-chef-o-ansible" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Provisionamiento con Chef o Ansible</h1>
 
 <p>A continuación describo los procedimientos a seguir para aprovisionar un sistema con los elementos básicos necesarios para desplegar el proyecto, usando Chef o Ansible.</p>
 
@@ -87,32 +87,60 @@
 
 <p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefInst.png" alt="Chef instalado"></p>
 
-<p>Pegar la carpeta "chef" que se encuentra en este repositorio en la carpeta principal (/home/"ususario"/). Se deben modificar las rutas "/home/ubuntu/" de los archivos por la carpeta principal del sistema que se esta provisionando. Ejecutar chef-solo -c solo.rb y el sistema queda provisionado:</p>
+<p>Pegar la carpeta "chef" de este repositorio en la carpeta principal (/home/"ususario"/). Se deben modificar las rutas "/home/ubuntu/" de los archivos por la carpeta principal del sistema que se esta provisionando. Ejecutar chef-solo -c solo.rb y el sistema queda provisionado:</p>
 
 <p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/ChefExe.png" alt="Chef ejecutado"></p>
 
 <h2>
 <a id="ansible" class="anchor" href="#ansible" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Ansible</h2>
 
-<p>Crear las carpetas "Provision" y "project". Para instalar Ansible:</p>
+<p>Crear las carpetas "Provision" y "project" en la carpeta principal. Instalar Ansible.</p>
 
-<ul>
-<li>sudo apt-get install software-properties-common</li>
-<li>sudo apt-add-repository ppa:ansible/ansible</li>
-<li>sudo apt-get update</li>
-<li>sudo apt-get install ansible</li>
-</ul>
-
-<p>Para configurar Ansible, en la carpeta "/etc/ansible" hay que modificar "ansible.cfg" para que "sudo_user" sea el usuario root del sistema (por defecto "root", pero en estas máquinas se llama "ubuntu"). Sustituir el archivo "hosts" por el que se encuentra en este repositorio. Crear una carpeta "group_vars" y pegar en ella el archivo "app.yml" que se encuentra en este repositorio.</p>
+<p>Para configurar Ansible, en la carpeta "/etc/ansible" hay que modificar "ansible.cfg" para que "sudo_user" sea el usuario root del sistema (por defecto "root", pero en estas máquinas se llama "ubuntu"). Crear una carpeta "group_vars" (si no existe) y pegar en ella el archivo "app.yml" que se encuentra en este repositorio.</p>
 
 <p>De vuelta a la carpeta Provision, pegar el archivo Playbook.yml de este repositorio. Por último, usar el comando "ansible-playbook Playbook.yml" para ejecutar Ansible. Esto da un output como este:</p>
 
 <p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Ansible.png" alt="Ejecución ansible-playbook Playbook.yml"></p>
 
-<h2>
-<a id="notas" class="anchor" href="#notas" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Notas</h2>
+<h1>
+<a id="provisionamiento-con-vagrant" class="anchor" href="#provisionamiento-con-vagrant" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Provisionamiento con Vagrant</h1>
 
-<p>Con esto queda el sistema provisionado de forma básica, de forma que se clona el repositorio del proyecto y se instalan los paquetes necesarios para poder ejecutar y desplegar archivos en Node.js. Cuando el proyecto esté más desarrollado habrá que añadir más instrucciones para provisionarlo de forma completa.</p>
+<h2>
+<a id="provisionamiento-para-máquinas-virtuales" class="anchor" href="#provisionamiento-para-m%C3%A1quinas-virtuales" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Provisionamiento para máquinas virtuales</h2>
+
+<p>Para provisionar máquinas virtuales con Vagrant, una vez instalado Vagrant (junto con una máquina virtual como VirtualBox) descargar los archivos de la carpeta /Provision/Vagrant/VirtualBox y colocarlos en una carpeta cualquiera. Ejercutar "vagrant -n(número de Game Worlds) up" para realizar el provisionamiento. Por ejemplo, si se quiere ejecutar creando 5 Game Worlds (hasta 5 partidas simultáneas) se haría "vagrant -n5 up". Se ejecutará Vagrant:</p>
+
+<p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp.png" alt="Ejecución Vagrant"></p>
+
+<p>Una vez completado, se habrán creado y configurado con Ansible todas las máquinas virtuales necesarias:</p>
+
+<p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp2.png" alt="Máquinas virtuales creadas"></p>
+
+<p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp3.png" alt="Máquinas en Vagrant"></p>
+
+<p>Se puede entrar a cualquiera de las máquinas con "vagrant ssh (nombre de la máquina)". Por ejemplo, al hacer "vagrant ssh master" se puede entrar al servidor maestro. Como se puede comprobar en la siguiente imagen, se ha configurado la máquina correctamente:</p>
+
+<p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp4.png" alt="Master Server"></p>
+
+<h2>
+<a id="provisionamiento-para-aws" class="anchor" href="#provisionamiento-para-aws" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Provisionamiento para AWS</h2>
+
+<p>Una vez instalado el plugin vagrant-aws, descargar los archivos de la carpeta /Provision/Vagrant/AWS y colocarlos en una carpeta cualquiera. Se debe configurar la cuenta de AWS, creando un grupo de seguridad llamado "Vagrant" con permisos suficientes, crear un Key Pair, descargando los archivos correspondientes, y modificar el archivo Vagrantfile dando valor a las siguientes variables:</p>
+
+<ul>
+<li>accessKeyID (Añadir Access Key ID)</li>
+<li>secretKey (Añadir Secret Key)</li>
+<li>keyPairName (Añadir nombre del Key Pair)</li>
+<li>privateKey (Añadir ruta desde este directorio a la Private Key)</li>
+</ul>
+
+<p>Ejecutar con vagrant -n(número de Game Worlds) up --provider=aws. Es posible que aparezca un error de Ansible que contenga "...too long for Unix domain socket...". En tal caso, seguir las instrucciones de este enlace: <a href="https://goinggnu.wordpress.com/2015/07/07/solution-for-too-long-for-unix-domain-socket-with-ansible-and-amazon-ec2/">https://goinggnu.wordpress.com/2015/07/07/solution-for-too-long-for-unix-domain-socket-with-ansible-and-amazon-ec2/</a>. También es posible que surjan errores de Ansible diciendo que hay problemas relacionados con la ejecución paralela (que no son fatales). En tal caso, ejecutar "vagrant provision" y puede que se arregle. Si todo va bien, se habrán creados las máquinas en AWS:</p>
+
+<p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/AWS_UP.png" alt="Máquinas creadas en AWS"></p>
+
+<p>Conectándose a una de las máquinas con "Vagrant ssh (nombre de la máquinas)", por ejemplo "Vagrant ssh master" para conectar con el Master Server, se puede comprobar que se ha creado y configurado correctamente:</p>
+
+<p><img src="https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Vagrant_AWS_Master.png" alt="Master Server AWS"></p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/NestorsImagination/Sample-Multiplayer-Shooter">Sample Multiplayer Shooter</a> is maintained by <a href="https://github.com/NestorsImagination">NestorsImagination</a>.</span>
