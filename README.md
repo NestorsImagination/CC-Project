@@ -44,7 +44,7 @@ Servidor escrito en NodeJS que tiene un World Simulator asociado. Al iniciarse, 
 
 Desarrollado con Unity, es un ejecutable que corre un mundo similar al de los clientes (ejecutado de modo que no se vean los gráficos para mejorar el rendimiento, ya que es innecesario) que recibirá los inputs de los clientes a través del World Master (usando Socket.IO) para simular los personajes jugadores y las entidades del mundo de forma sincronizada. También envía periódicamente a los jugadores el estado de las entidades (posición, vida de los jugadores, proyectiles, etc.), de forma que los clientes queden lo más sincronizados posible, y evita que un jugador haga trampas o quede desincronizado por problemas de latencia: es la posición de los jugadores en el World Simulator la que es tomada como real, y si en un cliente se comprueba que la posición del personaje jugador es diferente a la del World Simulator, el personaje jugador se moverá para tomar la posición dada por el World Simulator. Empezará una nueva partida cada vez que el World Master se lo pida, asociando cada cliente con un personaje jugador diferente.
 
-# Provisionamiento
+# Provisionamiento con Chef o Ansible
 
 A continuación describo los procedimientos a seguir para aprovisionar un sistema con los elementos básicos necesarios para desplegar el proyecto, usando Chef o Ansible.
 
@@ -68,6 +68,37 @@ De vuelta a la carpeta Provision, pegar el archivo Playbook.yml de este reposito
 
 ![Ejecución ansible-playbook Playbook.yml](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Ansible.png)
 
-## Notas
+# Provisionamiento con Vagrant
 
-Con esto queda el sistema provisionado de forma básica, de forma que se clona el repositorio del proyecto y se instalan los paquetes necesarios para poder ejecutar y desplegar archivos en Node.js. Cuando el proyecto esté más desarrollado habrá que añadir más instrucciones para provisionarlo de forma completa.
+## Provisionamiento para máquinas virtuales
+
+Para provisionar máquinas virtuales con Vagrant, una vez instalado Vagrant (junto con una máquina virtual como VirtualBox) descargar los archivos de la carpeta /Provision/Vagrant/VirtualBox y colocarlos en una carpeta cualquiera. Ejercutar "vagrant -n(número de Game Worlds) up" para realizar el provisionamiento. Por ejemplo, si se quiere ejecutar creando 5 Game Worlds (hasta 5 partidas simultáneas) se haría "vagrant -n5 up". Se ejecutará Vagrant:
+
+![Ejecución Vagrant](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp.png)
+
+Una vez completado, se habrán creado y configurado con Ansible todas las máquinas virtuales necesarias:
+
+![Máquinas virtuales creadas](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp2.png)
+
+![Máquinas en Vagrant](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp3.png)
+
+Se puede entrar a cualquiera de las máquinas con "vagrant ssh (nombre de la máquina)". Por ejemplo, al hacer "vagrant ssh master" se puede entrar al servidor maestro. Como se puede comprobar en la siguiente imagen, se ha configurado la máquina correctamente:
+
+![Master Server](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp4.png)
+
+## Provisionamiento para AWS
+
+Una vez instalado el plugin vagrant-aws, descargar los archivos de la carpeta /Provision/Vagrant/AWS y colocarlos en una carpeta cualquiera. Se debe configurar la cuenta de AWS, creando un grupo de seguridad llamado "Vagrant" con permisos suficientes, crear un Key Pair, descargando los archivos correspondientes, y modificar el archivo Vagrantfile dando valor a las siguientes variables:
+
+accessKeyID (Añadir Access Key ID)
+secretKey (Añadir Secret Key)
+keyPairName (Añadir nombre del Key Pair)
+privateKey (Añadir ruta desde este directorio a la Private Key)
+
+Ejecutar con vagrant -n(número de Game Worlds) up --provider=aws. Es posible que aparezca un error de Ansible que contenga "...too long for Unix domain socket...". En tal caso, seguir las instrucciones de este enlace: https://goinggnu.wordpress.com/2015/07/07/solution-for-too-long-for-unix-domain-socket-with-ansible-and-amazon-ec2/. También es posible que surjan errores de Ansible diciendo que hay problemas relacionados con la ejecución paralela (que no son fatales). En tal caso, ejecutar "vagrant provision" y puede que se arregle. Si todo va bien, se habrán creados las máquinas en AWS:
+
+![Máquinas creadas en AWS](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/AWS_UP.png)
+
+Conectándose a una de las máquinas con "Vagrant ssh (nombre de la máquinas)", por ejemplo "Vagrant ssh master" para conectar con el Master Server, se puede comprobar que se ha creado y configurado correctamente:
+
+![Master Server AWS](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Vagrant_AWS_Master.png)

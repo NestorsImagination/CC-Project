@@ -23,7 +23,7 @@ opts.each do |opt, arg|
       puts "Creating #{numGameWorlds} Game Worlds..."
   end
 end
-#Tambien hubo que hacer un sudo vagrant provision extra
+
 accessKeyID = ### Añadir Access Key ID ###
 secretKey = ### Añadir Secret Key ###
 keyPairName = ### Añadir nombre del Key Pair ###
