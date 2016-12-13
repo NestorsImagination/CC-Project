@@ -1,0 +1,101 @@
+# Instala y configura con Ansible las máquinas virtuales necesarias para desplegar
+# el proyecto Sample Multiplayer Shooter
+#
+# Uso: vagrant -n[número de Game Worlds] up --- (ejemplo: "vagrant -n2 up")
+
+require 'getoptlong'
+
+box = "ARTACK/debian-jessie"
+playbookNode = "playbook_node.yml"
+playbookDB = "playbook_db.yml"
+
+opts = GetoptLong.new([ '-n', GetoptLong::REQUIRED_ARGUMENT ])
+
+numGameWorlds = 1
+
+opts.each do |opt, arg|
+  case opt
+    when '-n'
+      numGameWorlds = arg.to_i
+      puts "Creating #{numGameWorlds} Game Worlds..."
+  end
+end
+
+Vagrant.configure(2) do |config|
+
+  # Servidor Maestro
+  config.vm.define "master" do |master|
+    master.vm.box = box
+    master.vm.network "private_network", ip: "192.168.50.2"
+
+    master.vm.provision :ansible do |ansible|
+      ansible.playbook = playbookNode
+      ansible.verbose = true
+      ansible.limit = "all"
+    end
+  end
+
+  # Servicio de "Login" (base de datos de los usuarios existentes)
+  config.vm.define "login_service" do |login|
+    login.vm.box = box
+    login.vm.network "private_network", ip: "192.168.50.3"
+
+    login.vm.provision :ansible do |ansible|
+      ansible.playbook = playbookDB
+      ansible.verbose = true
+      ansible.limit = "all"
+    end
+  end
+
+  # Servicio de Gestión de jugadores (base de datos con los datos relativos a los jugadores)
+  config.vm.define "player_manager" do |players|
+    players.vm.box = box
+    players.vm.network "private_network", ip: "192.168.50.4"
+
+    players.vm.provision :ansible do |ansible|
+      ansible.playbook = playbookDB
+      ansible.verbose = true
+      ansible.limit = "all"
+    end
+  end
+
+  # Servicio Matchmaker (referenciará y manejará los Game Worlds e inicio de partidas)
+  config.vm.define "matchmaker" do |matchmaker|
+    matchmaker.vm.box = box
+    matchmaker.vm.network "private_network", ip: "192.168.50.5"
+
+    matchmaker.vm.provision :ansible do |ansible|
+      ansible.playbook = playbookNode
+      ansible.verbose = true
+      ansible.limit = "all"
+    end
+  end 
+
+  # Crea los Game Worlds
+  (1..numGameWorlds).each do |i|
+
+    worldMasterIP = 4+i*2
+    worldSimulatorIP = worldMasterIP+1
+
+    # World Master (se comunicará con el Master Server y el World Simulator, recogiendo
+    # Inputs y enviando Outputs a los clientes, de forma que queden sincronizados)
+    config.vm.define "world_master_#{i}" do |world_master|
+      world_master.vm.box = box
+      world_master.vm.network "private_network", ip: "192.168.50.#{worldMasterIP}"
+
+      world_master.vm.provision :ansible do |ansible|
+        ansible.playbook = playbookNode
+        ansible.verbose = true
+        ansible.limit = "all"
+      end
+    end
+
+    # World Simulator (se encargará de ejecutar un ejecutable que simule el juego)
+    config.vm.define "world_simulator_#{i}" do |world_simulator|
+      world_simulator.vm.box = box
+      world_simulator.vm.network "private_network", ip: "192.168.50.#{worldSimulatorIP}"
+    end
+
+  end
+
+end
