@@ -23,7 +23,7 @@ Por ejemplo:
 
 Se puede ver en la consola de AWS que se ha creado la instancia correspondiente:
 
-![Docker Machine AWS Instance](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/DockerAWSInstance.png)
+![Docker Machine AWS Instance](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Docker_AWS_Instance.png)
 
 Luego se ha de usar el comando
 
