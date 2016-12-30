@@ -1,0 +1,13 @@
+{
+  "name": "login_service",
+  "version": "0.0.1",
+  "description": "Login Service of the Sample Multiplayer Shooter",
+  "author": "Daniel Pérez Gázquez",
+  "main": "login_service.js",
+  "scripts": {
+    "start": "node login_service.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}

@@ -1,0 +1,94 @@
+# Utiliza Docker para desplegar los contenedores necesarios para
+# el proyecto Sample Multiplayer Shooter
+#
+# Uso: vagrant -n[número de Game Worlds] up --- (ejemplo: "vagrant -n2 up")
+
+require 'getoptlong'
+
+opts = GetoptLong.new([ '-n', GetoptLong::REQUIRED_ARGUMENT ],
+		      [ '--provider', GetoptLong::OPTIONAL_ARGUMENT ])
+
+numGameWorlds = 1
+
+opts.each do |opt, arg|
+  case opt
+    when '-n'
+      numGameWorlds = arg.to_i
+      puts "Creating #{numGameWorlds} Game Worlds..."
+  end
+end
+
+user = "plenidag"
+iMaster = "smps_master"
+iLogin = "smps_login"
+iPlayer = "smps_player"
+iMatchmaker = "smps_matchmaker"
+iWorldMaster = "smps_world_master"
+iWorldSimulator = "smps_world_simulator"
+
+Vagrant.configure(2) do |config|
+
+  # Servidor Maestro
+  config.vm.define "master" do |master|
+    master.vm.provider "docker" do |d|
+      d.build_dir = "src/MasterServer"
+      d.build_args = ["-t#{user}/#{iMaster}"]
+      d.create_args = ["-it","-p49160:8080"]
+    end
+  end
+
+  # Servicio de "Login" (base de datos de los usuarios existentes)
+  config.vm.define "login_service" do |login|
+    login.vm.provider "docker" do |d|
+      d.build_dir = "src/LoginService"
+      d.build_args = ["-t#{user}/#{iLogin}"]
+      d.create_args = ["-it","-p49161:8080"]
+    end
+  end
+
+  # Servicio de Gestión de jugadores (base de datos con los datos relativos a los jugadores)
+  config.vm.define "player_manager" do |players|
+    players.vm.provider "docker" do |d|
+      d.build_dir = "src/PlayerManager"
+      d.build_args = ["-t#{user}/#{iPlayer}"]
+      d.create_args = ["-it","-p49162:8080"]
+    end
+  end
+
+  # Servicio Matchmaker (referenciará y manejará los Game Worlds e inicio de partidas)
+  config.vm.define "matchmaker" do |matchmaker|
+    matchmaker.vm.provider "docker" do |d|
+      d.build_dir = "src/Matchmaker"
+      d.build_args = ["-t#{user}/#{iMatchmaker}"]
+      d.create_args = ["-it","-p49163:8080"]
+    end
+  end
+
+  # Crea los Game Worlds
+  (1..numGameWorlds).each do |i|
+
+    worldMasterPort = 49162+i*2
+    worldSimulatorPort = worldMasterPort+1
+
+    # World Master (se comunicará con el Master Server y el World Simulator, recogiendo
+    # Inputs y enviando Outputs a los clientes, de forma que queden sincronizados)
+    config.vm.define "world_master_#{i}" do |world_master|
+      world_master.vm.provider "docker" do |d|
+        d.build_dir = "src/WorldMaster"
+        d.build_args = ["-t#{user}/#{iWorldMaster}"]
+        d.create_args = ["-it","-p#{worldMasterPort}:8080"]
+      end
+    end
+
+    # World Simulator (se encargará de ejecutar un ejecutable que simule el juego)
+    config.vm.define "world_simulator_#{i}" do |world_simulator|
+      world_simulator.vm.provider "docker" do |d|
+        d.build_dir = "src/WorldSimulator"
+        d.build_args = ["-t#{user}/#{iWorldSimulator}"]
+        d.create_args = ["-it","-p#{worldSimulatorPort}:8080"]
+      end
+    end
+
+  end
+
+end

@@ -1,0 +1,13 @@
+{
+  "name": "world_simulator",
+  "version": "0.0.1",
+  "description": "World Simulator of the Sample Multiplayer Shooter",
+  "author": "Daniel Pérez Gázquez",
+  "main": "world_simulator.js",
+  "scripts": {
+    "start": "node world_simulator.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}

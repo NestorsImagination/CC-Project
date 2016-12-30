@@ -1,6 +1,6 @@
-# Provisionamiento con Vagrant
+# Despliegue con Vagrant
 
-## Provisionamiento para máquinas virtuales
+## Despliegue para máquinas virtuales
 
 Para provisionar máquinas virtuales con Vagrant, una vez instalado Vagrant (junto con una máquina virtual como VirtualBox) descargar los archivos de esta carpeta y colocarlos en una carpeta cualquiera. Ejercutar "vagrant -n(número de Game Worlds) up" para realizar el provisionamiento. Por ejemplo, si se quiere ejecutar creando 5 Game Worlds (hasta 5 partidas simultáneas) se haría "vagrant -n5 up". Se ejecutará Vagrant:
 

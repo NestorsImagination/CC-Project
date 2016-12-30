@@ -1,0 +1,13 @@
+{
+  "name": "master_server",
+  "version": "0.0.1",
+  "description": "Master Server of the Sample Multiplayer Shooter",
+  "author": "Daniel Pérez Gázquez",
+  "main": "master_server.js",
+  "scripts": {
+    "start": "node master_server.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}

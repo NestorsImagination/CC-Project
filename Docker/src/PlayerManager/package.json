@@ -1,0 +1,13 @@
+{
+  "name": "player_manager",
+  "version": "0.0.1",
+  "description": "Player Manager of the Sample Multiplayer Shooter",
+  "author": "Daniel Pérez Gázquez",
+  "main": "player_manager.js",
+  "scripts": {
+    "start": "node player_manager.js"
+  },
+  "dependencies": {
+    "express": "^4.13.3"
+  }
+}

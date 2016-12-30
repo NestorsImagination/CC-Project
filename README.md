@@ -68,9 +68,9 @@ De vuelta a la carpeta Provision, pegar el archivo Playbook.yml de este reposito
 
 ![Ejecución ansible-playbook Playbook.yml](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Ansible.png)
 
-# Provisionamiento con Vagrant
+# Despliegue con Vagrant
 
-## Provisionamiento para máquinas virtuales
+## Despliegue para máquinas virtuales
 
 Para provisionar máquinas virtuales con Vagrant, una vez instalado Vagrant (junto con una máquina virtual como VirtualBox) descargar los archivos de la carpeta /Provision/Vagrant/VirtualBox y colocarlos en una carpeta cualquiera. Ejercutar "vagrant -n(número de Game Worlds) up" para realizar el provisionamiento. Por ejemplo, si se quiere ejecutar creando 5 Game Worlds (hasta 5 partidas simultáneas) se haría "vagrant -n5 up". Se ejecutará Vagrant:
 
@@ -86,7 +86,7 @@ Se puede entrar a cualquiera de las máquinas con "vagrant ssh (nombre de la má
 
 ![Master Server](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/VagrantShooterUp4.png)
 
-## Provisionamiento para AWS
+## Despliegue para AWS
 
 Una vez instalado el plugin vagrant-aws, descargar los archivos de la carpeta /Provision/Vagrant/AWS y colocarlos en una carpeta cualquiera. Se debe configurar la cuenta de AWS, creando un grupo de seguridad llamado "Vagrant" con permisos suficientes, crear un Key Pair, descargando los archivos correspondientes, y modificar el archivo Vagrantfile dando valor a las siguientes variables:
 
@@ -102,3 +102,62 @@ Ejecutar con vagrant -n(número de Game Worlds) up --provider=aws. Es posible qu
 Conectándose a una de las máquinas con "Vagrant ssh (nombre de la máquinas)", por ejemplo "Vagrant ssh master" para conectar con el Master Server, se puede comprobar que se ha creado y configurado correctamente:
 
 ![Master Server AWS](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Vagrant_AWS_Master.png)
+
+# Creación de un entorno de pruebas con Docker
+
+Se supone que Docker está instalado correctamente en la máquina a usar. Para que no haya problemas se recomienda usar todos los comandos especificados con el usuario "root" (sudo su).
+
+## Creación de una máquina con docker-machine
+
+Se puede comenzar creando una máquina Docker con docker-machine (se debe instalar adicionalmente) para conectar con el servidor en el que se desplegará el entorno, aunque es opcional. Por ejemplo, en el caso de AWS, se debe crear un archivo /root/.aws/credentials con el siguiente contenido:
+
+```
+aws\_access\_key\_id = **************
+aws\_secret\_access\_key = *************
+```
+
+Luego usar el comando
+
+```
+docker-machine create --driver amazonec2 --amazonec2-region "región" "nombre de la máquina"
+```
+
+Por ejemplo:
+
+![Docker Machine AWS](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/DockerMachineAWS.png)
+
+Se puede ver en la consola de AWS que se ha creado la instancia correspondiente:
+
+![Docker Machine AWS Instance](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/DockerAWSInstance.png)
+
+Luego se ha de usar el comando
+
+```
+eval $(docker-machine env "nombre de la máquina")
+```
+
+para activar la máquina creada. Por ejemplo:
+
+![Docker Machine AWS](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/DockerMachineAWS_2.png)
+
+## Creación del entorno de pruebas con Docker
+
+Descargar el contenido de la carpeta "Docker" de este repositorio. Moverse en la terminal a la carpeta y usar el siguiente comando:
+
+```
+vagrant -n"número de mundos de juego" up --provider=docker
+```
+
+Por ejemplo:
+
+```
+vagrant -n2 up --provider=docker
+```
+
+Tras unos momentos, el entorno quedará creado. Con "docker ps -a" se pueden listar los contenedores creados:
+
+![Entorno creado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Docker_Vagrant_Up.png)
+
+Se puede conectar con la máquina con "docker-machine ssh "nombre de la máquina" para comprobar que todo funciona correctamente:
+
+![Entorno creado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Docker_AWS_Prueba.png)
