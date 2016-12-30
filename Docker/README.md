@@ -55,4 +55,4 @@ Tras unos momentos, el entorno quedará creado. Con "docker ps -a" se pueden lis
 
 Se puede conectar con la máquina con "docker-machine ssh "nombre de la máquina" para comprobar que todo funciona correctamente:
 
-![Entorno creado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/Docker_AWS_Prueba.png)
+![Entorno creado](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Provision/Screenshots/DockerAWSPrueba.png)
