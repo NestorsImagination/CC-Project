@@ -142,6 +142,8 @@ para activar la máquina creada. Por ejemplo:
 
 ## Creación del entorno de pruebas con Docker
 
+_Nota: Este apartado es igualmente aplicable para la carpeta "Docker-DockerHub"._
+
 Descargar el contenido de la carpeta "Docker" de este repositorio. Moverse en la terminal a la carpeta y usar el siguiente comando:
 
 ```
