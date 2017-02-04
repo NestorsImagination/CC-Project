@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html >
+<head>
+	<meta charset="UTF-8">
+	<title>Sample Multiplayer Shooter - Lobby</title>
+	<link href="/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body class="back-lobby">
+	<h1>Sample Multiplayer Shooter - Test</h1>
+	<h2>Lobby</h2>
+	<div class="lobby-page">
+		<div class="pannel">
+			<div class="chat">
+				<div id="chat-box">
+					<ul id="chat-messages"></ul>
+				</div>
+				<form class="chat-textbox">
+					<input id="chat-message" autocomplete="off" disabled>
+				</form>
+			</div>
+
+			<button id="find-game" type="button" disabled>Buscar partida</button>
+			<button id="logout" class="exit-button" type="button" disabled>Cerrar sesión</button>
+		</div>
+	</div>
+
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		var socket = io ('/lobby');
+
+		function showMessage (msg) {
+			$('#chat-messages').append($('<li class="message">').text("-"+msg));
+			var chatBox = document.getElementById("chat-messages");
+			chatBox.scrollTop=chatBox.scrollHeight;
+		}
+		
+		$('form').submit(function() {
+			if ($('#chat-message').val()!='') {
+				socket.emit('chat message', $('#chat-message').val());
+				$('#chat-message').val('');
+			}
+			
+			return false;
+		});
+
+		$('#find-game').click(function() {
+			socket.emit('find game');
+			document.getElementById('find-game').innerHTML = "Buscando partida...";
+			document.getElementById('find-game').disabled = true;
+			
+			return false;
+		});
+
+		$('#logout').click(function() {
+			socket.emit('logout');
+			location.replace("/");
+			
+			return false;
+		});
+
+		socket.on('user connect', function(response) {
+			if (response == 'CONNECTED') {
+				document.getElementById('chat-message').disabled = false;
+				document.getElementById('find-game').disabled = false;
+				document.getElementById('logout').disabled = false;
+				showMessage ("[Conectado al Master Server (Nombre de usuario: "+sessionStorage.getItem("username")+")]");
+			} else if (response == 'ERR_BAD_TOKEN') {
+				showMessage ("[Error: El token es incorrecto]");
+			} else if (response == 'ERR_BAD_FORMAT') {
+				showMessage ("[Error: Datos erróneos]");
+			}
+		});
+
+		socket.on('chat message', function(msg){
+			showMessage (msg);
+		});
+
+		socket.on('game start', function(gameWorld){
+			showMessage ("Comienza la partida");
+			sessionStorage.setItem ("gameWorld", gameWorld);
+			location.replace("/game_match");
+		});
+		
+		socket.on('disconnect', function() {
+			document.getElementById('chat-message').disabled = true;
+			document.getElementById('find-game').disabled = true;
+			document.getElementById('logout').disabled = true;
+			showMessage ('[El servidor se ha desconectado]');
+		});
+
+		socket.emit('user connect', sessionStorage.getItem("username"), sessionStorage.getItem("userToken"));
+	</script>
+</body>
+</html>

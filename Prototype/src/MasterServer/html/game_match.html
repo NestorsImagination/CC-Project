@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html >
+<head>
+	<meta charset="UTF-8">
+	<title>Sample Multiplayer Shooter - Game match</title>
+	<link href="/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body class="back-match">
+	<h1>Sample Multiplayer Shooter - Test</h1>
+	<h2>Game Match</h2>
+	<div class="match-page">
+		<div class="pannel">
+			<div class="chat">
+				<div id="chat-box">
+					<ul id="chat-messages"></ul>
+				</div>
+				<form class="chat-textbox">
+					<input id="chat-message" autocomplete="off" disabled>
+				</form>
+			</div>
+
+			<button id="exit-game" class="exit-button" type="button" disabled>Salir de la partirda</button>
+		</div>
+	</div>
+
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		var socket = io ('/match');
+
+		function showMessage (msg) {
+			$('#chat-messages').append($('<li class="message">').text("-"+msg));
+			var chatBox = document.getElementById("chat-messages");
+			chatBox.scrollTop=chatBox.scrollHeight;
+		}
+		
+		$('form').submit(function() {
+			if ($('#chat-message').val()!='') {
+				socket.emit('chat message', $('#chat-message').val());
+				$('#chat-message').val('');
+			}
+			
+			return false;
+		});
+
+		$('#exit-game').click(function() {
+			socket.emit('exit match');
+			location.replace("/lobby");
+			
+			return false;
+		});
+
+		socket.on('player connect', function(response) {
+			if (response == 'CONNECTED') {
+				document.getElementById('chat-message').disabled = false;
+				document.getElementById('exit-game').disabled = false;
+				showMessage ("[Conectado a la partida (Nombre de usuario: "+sessionStorage.getItem("username")+")]");
+			} else if (response == 'ERR_BAD_TOKEN') {
+				showMessage ("[Error: El token es incorrecto]");
+			} else if (response == 'ERR_BAD_FORMAT') {
+				showMessage ("[Error: Datos erróneos]");
+			} else if (response == 'ERR_BAD_WORLD') {
+				showMessage ("[Error: Mundo de juego inválido]");
+			}
+		});
+
+		socket.on('chat message', function(msg){
+			showMessage (msg);
+		});
+
+		socket.on('game start', function(msg){
+			showMessage ("Comienza la partida");
+		});
+		
+		socket.on('disconnect', function() {
+			document.getElementById('chat-message').disabled = true;
+			document.getElementById('exit-game').disabled = true;
+			showMessage ('[El servidor se ha desconectado]');
+		});
+
+		socket.emit('player connect', sessionStorage.getItem("username"), 
+			sessionStorage.getItem("userToken"), sessionStorage.getItem("gameWorld"));
+	</script>
+</body>
+</html>

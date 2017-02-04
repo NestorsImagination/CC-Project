@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html >
+<head>
+	<meta charset="UTF-8">
+	<title>Sample Multiplayer Shooter - Register</title>
+	<link href="/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body class="back-intro">
+	<h1>Sample Multiplayer Shooter - Test</h1>
+	<div class="register-page">
+		<div class="form">
+			<form class="register-form">
+				<input type="email" placeholder="Email address" id="reg_email" required/>
+				<input type="text" placeholder="Username" id="reg_username" required/>
+				<input type="password" placeholder="Password" id="reg_password" required/>
+				<input type="submit" value="Sign up"/>
+				<p class="message">Already registered? <a href="/">Sign In</a></p>
+			</form>
+			<p id="error"></p>
+		</div>
+	</div>
+
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		var socket = io('/intro');
+
+		var pError = document.getElementById ('error');
+	
+		$('form').submit (function() {
+			if ($('#reg_username').val().length >= 4 && $('#reg_username').val().length <= 12) {
+				if ($('#reg_password').val().length >= 8 && $('#reg_password').val().length <= 24) {
+					socket.emit('register', $('#reg_email').val(), $('#reg_username').val(), $('#reg_password').val());
+				} else {
+					pError.innerHTML = "Introduce una contraseña que tenga una longitud de entre 8 y 24 caracteres";
+				}
+			} else {
+				pError.innerHTML = "Introduce un nombre de usuario que tenga una longitud de entre 4 y 12 caracteres";
+			}
+		
+			return false;
+		});
+	
+		socket.on('register', function (response) {
+			if (response == 'SUCCESS') {
+				location.replace("/register_success");
+			} else if (response == 'ERR_DB') {
+				pError.innerHTML = "Error al conectar a la base de datos. Por favor, inténtelo más tarde.";
+			} else if (response == 'EMAIL_EXISTS') {
+				pError.innerHTML = "Ya existe un usuario con ese correo electrónico";
+			} else if (response == 'USERNAME_EXISTS') {
+				pError.innerHTML = "Ya existe un usuario con ese nombre de usuario";
+			} else if (response == 'ERR_EMAIL') {
+				pError.innerHTML = "Error: El correo eletrónico introducido es inválido";
+			} else if (response == 'ERR_USERNAME') {
+				pError.innerHTML = "Error: Introduce un nombre de usuario que tenga una longitud de entre 4 y 12 caracteres";
+			} else if (response == 'ERR_PASSWORD') {
+				pError.innerHTML = "Error: Introduce una contraseña que tenga una longitud de entre 8 y 24 caracteres";
+			}
+		});
+	</script>
+</body>
+</html>

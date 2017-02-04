@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html >
+<head>
+	<meta charset="UTF-8">
+	<title>Sample Multiplayer Shooter - Login</title>
+	<link href="/style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body class="back-intro">
+	<h1>Sample Multiplayer Shooter - Test</h1>
+	<div class="login-page">
+		<div class="form">
+			<form class="login-form">
+				<input type="text" placeholder="Username" id="log_username" required/>
+				<input type="password" placeholder="Password" id="log_password" required/>
+				<input type="submit" value="Login"/>
+				<p class="message">Not registered? <a href="/register">Create an account</a></p>
+			</form>
+			<p id="error"></p>
+		</div>
+	</div>
+
+	<script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+	<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+	<script>
+		var socket = io('/intro');
+
+		var pError = document.getElementById ('error');
+	
+		$('form').submit (function() {
+			if ($('#log_username').val().length >= 4 && $('#log_username').val().length <= 12) {
+				if ($('#log_password').val().length >= 8 && $('#log_password').val().length <= 24) {
+					socket.emit('login', $('#log_username').val(), $('#log_password').val());
+				} else {
+					pError.innerHTML = "Introduce una contraseña que tenga una longitud de entre 8 y 24 caracteres";
+				}
+			} else {
+				pError.innerHTML = "Introduce un nombre de usuario que tenga una longitud de entre 4 y 12 caracteres";
+			}
+		
+			return false;
+		});
+	
+		socket.on('login', function (response, username, token) {
+			if (response == 'LOGGED_IN') {
+				sessionStorage.setItem ("username", username);
+				sessionStorage.setItem ("userToken", token);
+				location.replace("/lobby");
+			} else if (response == 'DB_ERROR') {
+				pError.innerHTML = "Error al conectar a la base de datos. Por favor, inténtelo más tarde.";
+			} else if (response == 'WRONG_LOGIN_DATA') {
+				pError.innerHTML = "El usuario o la contraseña introducidos no son correctos";
+			} else if (response == 'ERR_USERNAME') {
+				pError.innerHTML = "Error: Introduce un nombre de usuario que tenga una longitud de entre 4 y 12 caracteres";
+			} else if (response == 'ERR_PASSWORD') {
+				pError.innerHTML = "Error: Introduce una contraseña que tenga una longitud de entre 8 y 24 caracteres";
+			}
+		});
+	</script>
+</body>
+</html>

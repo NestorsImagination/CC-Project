@@ -1,0 +1,111 @@
+# Utiliza Docker para desplegar los contenedores necesarios para
+# el proyecto Sample Multiplayer Shooter
+#
+# Nota: Antes de ejecutar este archivo se debe crear una network de docker con
+# 'docker network create SMPS -d bridge --subnet 172.25.0.0/16' (la dirección 
+# puede ser cualquier otra válida)
+#
+# Uso: 'vagrant -n[número de Game Worlds] -p[número de jugadores por partida]
+# -a[dirección base de la red privada] up --no-parallel'
+# Por ejemplo: 'vagrant -n1 -p2 -a"172.25.0" up --no-parallel'
+
+require 'getoptlong'
+
+opts = GetoptLong.new([ '-n', GetoptLong::REQUIRED_ARGUMENT ],
+				[ '-p', GetoptLong::REQUIRED_ARGUMENT ],
+				[ '-a', GetoptLong::REQUIRED_ARGUMENT ],
+				[ '--provider', GetoptLong::OPTIONAL_ARGUMENT ],
+				[ '--no-parallel', GetoptLong::OPTIONAL_ARGUMENT ])
+
+numGameWorlds = 1
+playersPerMatch = 2;
+baseAddress = "";
+
+opts.each do |opt, arg|
+  case opt
+    when '-n'
+      numGameWorlds = arg.to_i
+      puts "Creating #{numGameWorlds} Game Worlds"
+	when '-p'
+      playersPerMatch = arg
+      puts "Matchs of #{playersPerMatch} players"
+	when '-a'
+      baseAddress = arg
+      puts "Base address: #{baseAddress}"
+  end
+end
+
+user = "plenidag"
+iMaster = "smps_master"
+iLogin = "smps_login"
+iMatchmaker = "smps_matchmaker"
+iWorldMaster = "smps_world_master"
+
+Vagrant.configure(2) do |config|
+
+  # Servicio de "Login" (base de datos de los usuarios existentes)
+  config.vm.define "login_service" do |login|
+    login.vm.provider "docker" do |d|
+	  d.env = {
+        "PORT" => "3001",
+		"DB_DIR" => "mongodb://admin:admin@ds023418.mlab.com:23418/smps-users",
+		"DB_NAME" => "SMPS_Users"
+      }
+      d.build_dir = "src/LoginService"
+      d.build_args = ["-t#{user}/#{iLogin}"]
+      d.create_args = ["-it","-p3001:3001", "--name=LoginService", "--network=SMPS"]
+    end
+  end
+
+  # Servicio Matchmaker (referenciará y manejará los Game Worlds e inicio de partidas)
+  config.vm.define "matchmaker" do |matchmaker|
+    matchmaker.vm.provider "docker" do |d|
+	  d.env = {
+        "PORT" => "3002",
+		"PLAYERS_PER_MATCH" => "#{playersPerMatch}"
+      }
+      d.build_dir = "src/Matchmaker"
+      d.build_args = ["-t#{user}/#{iMatchmaker}"]
+      d.create_args = ["-it","-p3002:3002", "--name=Matchmaker", "--network=SMPS"]
+    end
+  end
+
+  # Crea los Game Worlds
+  (1..numGameWorlds).each do |i|
+
+    worldMasterPort = 3002+i
+	myDirNum = 3+i;
+
+    # World Master
+    config.vm.define "world_master_#{i}" do |world_master|
+      world_master.vm.provider "docker" do |d|
+		d.env = {
+	      "PORT" => "#{worldMasterPort}",
+		  "WORLD_NAME" => "World#{i}",
+		  "MY_DIR" => "http://#{baseAddress}.#{myDirNum}",
+		  "MATCHMAKER_DIR" => "http://#{baseAddress}.3:3002"
+	    }
+        d.build_dir = "src/WorldMaster"
+        d.build_args = ["-t#{user}/#{iWorldMaster}"]
+        d.create_args = ["-it","-p#{worldMasterPort}:#{worldMasterPort}", "--name=WorldMaster#{i}", "--network=SMPS"]
+      end
+    end
+
+  end
+
+  # Servidor Maestro
+  config.vm.define "master_server" do |master|
+    master.vm.provider "docker" do |d|
+	  d.env = {
+        "PORT" => "3000",
+		"PLAYERS_PER_MATCH" => "#{playersPerMatch}",
+		"LOGIN_DIR" => "http://#{baseAddress}.2:3001",
+		"MATCHMAKER_DIR" => "http://#{baseAddress}.3:3002"
+      }
+      d.build_dir = "src/MasterServer"
+      d.build_args = ["-t#{user}/#{iMaster}"]
+      d.create_args = ["-it","-p3000:3000", "--name=MasterServer", "--network=SMPS" ]
+    end
+  end
+
+end
