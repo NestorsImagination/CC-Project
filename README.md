@@ -168,16 +168,18 @@ Se puede conectar con la máquina con "docker-machine ssh "nombre de la máquina
 
 ## Introducción
 
-Para el prototipo final (carpeta "Prototype" he desarrollado los diferentes servicios del sistema, usando Node.js y Socket.io, además de páginas HTMl para hacer una muestra de su funcionamiento. Se ha empleado una arquitectura de microservicios. El sistema de ficheros final está estructurado de forma que cada servicio está empaquetado en una carpeta, con todos sus archivos necesarios, junto con un Dockerfile, y además se ha creado un Vagrantfile en la carpeta raíz (Prototype).
+Para el prototipo final (carpeta "Prototype") he desarrollado los diferentes servicios del sistema, usando Node.js y Socket.io, además de páginas HTMl para hacer una muestra de su funcionamiento. Se ha empleado una arquitectura de microservicios. El sistema de ficheros final está estructurado de forma que cada servicio está empaquetado en una carpeta, con todos sus archivos necesarios, junto con un Dockerfile, y además se ha creado un Vagrantfile en la carpeta raíz (Prototype).
 
 En concreto, se han desarrollado los siguientes servicios:
 
-* MasterServer: El servicio principal, el cual se encarga de enviar las páginas HTML al usuario, proporcionar las funciones básicas y hacer de enlace entre el usuario y los demás servicios.
-* LoginService: Servicio que se comunica con la base de datos Mongo para registrar usuario y comprobar la correctitud de los datos enviados para iniciar sesión.
-* Matchmaker: Servicio que contiene una lista de los GameWorld disponibles, junto con su nombre y dirección, y que se encarga de recibir peticiones de jugadores buscando partida desde el MasterServer, asignándolos a los WorldMaster disponibles y comunicando al WorldMaster que inicie una partida cuando todos los plazos disponibles en un WorldMaster se hayan ocupado por jugadores, enviándole el nombre y la dirección de ese WorldMaster para ello. Si no hay ningún WorldMaster disponible cuando un jugador busca una partida, queda comprobando periódicamente si algún WorldMaster queda disponible, añadiendo el jugador a ese WorldMaster en tal caso.
-* WorldMaster: Un "mundo de juego", donde los jugadores se conectarían, a través del MasterServer, para comunicarse y sincronizar sus ordenadores durante una partida. Al iniciarse, avisa al Matchmaker de que queda disponible para iniciar partidas en él. Cuando acepta una partida le avisa de que queda ocupado hasta que acabe la partida, de forma que no se puedan iniciar nuevas partidas.
+* **MasterServer:** El servicio principal, el cual se encarga de enviar las páginas HTML al usuario, proporcionar las funciones básicas y hacer de enlace entre el usuario y los demás servicios.
+* **LoginService:** Servicio que se comunica con la base de datos Mongo para registrar usuario y comprobar la correctitud de los datos enviados para iniciar sesión.
+* **Matchmaker:** Servicio que contiene una lista de los GameWorld disponibles, junto con su nombre y dirección, y que se encarga de recibir peticiones de jugadores buscando partida desde el MasterServer, asignándolos a los WorldMaster disponibles y comunicando al WorldMaster que inicie una partida cuando todos los plazos disponibles en un WorldMaster se hayan ocupado por jugadores, enviándole el nombre y la dirección de ese WorldMaster para ello. Si no hay ningún WorldMaster disponible cuando un jugador busca una partida, queda comprobando periódicamente si algún WorldMaster queda disponible, añadiendo el jugador a ese WorldMaster en tal caso.
+* **WorldMaster:** Un "mundo de juego", donde los jugadores se conectarían, a través del MasterServer, para comunicarse y sincronizar sus ordenadores durante una partida. Al iniciarse, avisa al Matchmaker de que queda disponible para iniciar partidas en él. Cuando acepta una partida le avisa de que queda ocupado hasta que acabe la partida, de forma que no se puedan iniciar nuevas partidas.
 
-También se ha configurado una cuenta en mLab, conteniendo una base de datos de los usuarios añadidos al sistea.
+También se ha configurado una cuenta en mLab, conteniendo una base de datos de los usuarios añadidos al sistema:
+
+![mLab](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_MLab.png)
 
 _Nota: En este prototipo se ha ignorado el servicio que fue llamado "PlayerManager", ya que no aportaría mucho por ahora._ 
 
@@ -187,7 +189,7 @@ En definitiva, el diagrama que reflejaría la arquitectura del prototipo final s
 
 ## El prototipo
 
-Una vez desplegado, accediendo a la dirección del MasterServer se entra en la página inicial:
+Una vez desplegado, accediendo a la dirección del Master Server se entra en la página inicial:
 
 ![Página inicial](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Intro.png)
 
@@ -195,7 +197,7 @@ Aquí el usuario puede iniciar sesión o registrar un nuevo usuario. Una vez ini
 
 ![Lobby](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Lobby.png)
 
-Aquí puede hablar con los demás usuarios que se encuentren en esta sala. Se puede buscar partida pulsando el botón correspondiente, pero no iniciará hasta que el número necesario de jugadores estén buscando partida (2, en este caso) y haya algún WorldMaster disponible:
+Aquí puede hablar con los demás usuarios que se encuentren en esta sala. Se puede buscar partida pulsando el botón correspondiente, pero no iniciará hasta que el número necesario de jugadores estén buscando partida (2, en este caso) y haya algún World Master disponible:
 
 ![Lobby buscando partida](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Lobby_2.png)
 
@@ -220,6 +222,13 @@ Una vez todos los jugadores han salido de la partida, una nueva partida comienza
 _Nota: Se da por hecho que se tiene Vagrant, Docker y Docker-Machine corréctamente instalados (y una cuenta disponible de AWS, pero es opcional)_
 
 _Nota 2: Se recomienda trabajar en modo superusuario temporalmente para evitar molestias y problemas_
+
+Se debe tener creado un archivo /root/.aws/credentials con el siguiente contenido:
+
+```
+aws\_access\_key\_id = **************
+aws\_secret\_access\_key = *************
+```
 
 Descargar la carpeta 'Prototype'. Crear una docker-machine con el siguiente comando (región al gusto):
 
@@ -271,7 +280,7 @@ Los argumentos son:
 * p(x): El número de jugadores por partida
 * a(xxx.xxx.xxx): Los primeros tres números de la subnet
 
-Una vez ejecutado, si ha habido éxito, al conectarse al servidor AWS (con docker ssh 'aws-docker-machine') al ejecutar 'curl localhost:3000' debería aparecer una cadena de texto grande, la página web inicial. Quedan dos pasos antes de poder acceder públicamente. Primero se debe acceder, en la página de gestion de instancias EC2 de AWS, al grupo de seguridad asociado a la máquina (en Security Groups, por defecto 'docker-machine'): 
+Una vez ejecutado, si ha habido éxito, al conectarse al servidor AWS (con docker ssh 'aws-docker-machine') al ejecutar 'curl localhost:3000' debería aparecer una cadena de texto grande, la página web inicial. Quedan dos pasos antes de poder acceder públicamente. Primero (solo hay que hacerlo la primera vez) se debe acceder, en la página de gestion de instancias EC2 de AWS, al grupo de seguridad asociado a la máquina (en Security Groups, por defecto 'docker-machine'): 
 
 ![Grupo de seguridad](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Security.png)
 
