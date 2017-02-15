@@ -197,15 +197,15 @@ Aquí el usuario puede iniciar sesión o registrar un nuevo usuario. Una vez ini
 
 ![Lobby](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Lobby.png)
 
-Aquí puede hablar con los demás usuarios que se encuentren en esta sala. Se puede buscar partida pulsando el botón correspondiente, pero no iniciará hasta que el número necesario de jugadores estén buscando partida (2, en este caso) y haya algún World Master disponible:
+Aquí puede hablar con los demás usuarios que se encuentren en esta sala. Se puede buscar partida pulsando el botón correspondiente, pero no iniciará hasta que el número necesario de jugadores estén buscando partida (dos, en este caso) y haya algún World Master disponible:
 
 ![Lobby buscando partida](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Lobby_2.png)
 
-Una vez el número necesario de jugadores están buscando partida (Juan le da a buscar partida), los dos jugadores son redireccionados a la página de la partida, donde pueden seguir comunicándose entre ellos (y con cualquier otro jugador en la partida si estas fueran de más de dos jugadores), pero no con los usuarios que siguieran en el lobby:
+Una vez el número necesario de jugadores están buscando partida (Juan le da a buscar partida), los dos jugadores son redireccionados a la página de la partida, donde pueden seguir comunicándose entre ellos (y con cualquier otro jugador en la partida si éstas fueran de más de dos jugadores), pero no con los usuarios que siguieran en el lobby:
 
 ![Partida](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Match.png)
 
-En este caso, se desplegó el sistema con un solo World Master, por lo que ningún usuario más podrá entrar en partida hasta que este quede libre (por ejemplo, si hubieran dos World Master y cada partida fuera de 4 jugadores, el número máximo que podrían jugar a la vez sería de 2x4=8):
+En este caso se desplegó el sistema con un solo World Master, por lo que ningún usuario más podrá entrar en partida hasta que éste quede libre (por ejemplo, si hubieran dos World Master y cada partida fuera de 4 jugadores, el número máximo que podrían jugar a la vez sería de 2x4=8):
 
 ![No se encuentra partida](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Lobby_3.png)
 
@@ -219,30 +219,29 @@ Una vez todos los jugadores han salido de la partida, una nueva partida comienza
 
 ## Cómo desplegar
 
-_Nota: Se da por hecho que se tiene Vagrant, Docker y Docker-Machine corréctamente instalados (y una cuenta disponible de AWS, pero es opcional)_
+_Nota: Se da por hecho que se tiene Vagrant, Docker y Docker-Machine correctamente instalados (y una cuenta disponible de AWS, pero es opcional)_
 
 _Nota 2: Se recomienda trabajar en modo superusuario temporalmente para evitar molestias y problemas_
 
-Se debe tener creado un archivo /root/.aws/credentials con el siguiente contenido:
+Para empezar, si no se tiene ya configurado, se deben seguir los pasos descritos en el siguiente enlace para preparar la conexión de Docker con AWS (hasta el apartado 2.1): https://docs.docker.com/machine/examples/aws/
 
-```
-aws\_access\_key\_id = **************
-aws\_secret\_access\_key = *************
-```
-
-Descargar la carpeta 'Prototype'. Crear una docker-machine con el siguiente comando (región al gusto):
+Descargar la carpeta 'Prototype'. Crear con una terminal una docker-machine con el siguiente comando (región al gusto):
 
 ```
 docker-machine create --driver amazonec2 --amazonec2-region eu-central-1 aws-docker-machine
 ```
 
-Comprobar en la consola de AWS que la máquina está corriendo correctamente y usar el siguiente comando para activar la nueva máquina:
+Esto creará en la cuenta AWS una nueva máquina EC2. Se debe comprobar en la consola de AWS EC2 que la máquina está corriendo correctamente, apareciendo una máquina como la siguiente:
+
+![Máquina creada en AWS](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/AWS_CreatedDockerMachine.png)
+
+Una vez comprobado, usar el siguiente comando para activar la nueva máquina:
 
 ```
 eval $(docker-machine env aws-docker-machine)
 ```
 
-Comprobar con el siguiente comando que la nueva máquina está activada:
+Confirmar con el siguiente comando que la nueva máquina está activada (debería aparecer el nombre de la máquina AWS):
 
 ```
 docker-machine active
@@ -254,7 +253,7 @@ Se puede comprobar que se puede conectar correctamente a la máquina AWS usando 
 docker-machine ssh aws-docker-machine -- docker network create SMPS -d bridge --subnet 172.25.0.0/16
 ```
 
-_Nota: También se puede ejecutar el comando 'docker network create SMPS -d bridge --subnet 172.25.0.0/16' desde dentro de la máquina AWS, tras conectarse con SSH_
+_Nota: También se puede ejecutar el comando 'docker network create SMPS -d bridge --subnet 172.25.0.0/16' desde dentro de la máquina AWS, tras conectarse con ssh_
 
 _Nota 2: La subnet puede ser la que se desee, siempre que sea válida_
 
@@ -268,6 +267,8 @@ Debería dar un resultado parecido a este:
 
 ![La partida termina y comienza una nueva](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Network.png)
 
+_Nota: Como se ha dicho, esta subnet permitirá a los contenedores que se desplegarán comunicarse entre sí, de forma que se puedan enlazar para formar la estructura de microservicios_
+
 Ejecutar el siguiente comando para desplegar el sistema:
 
 ```
@@ -278,9 +279,16 @@ Los argumentos son:
 
 * n(x): El número de World Masters
 * p(x): El número de jugadores por partida
-* a(xxx.xxx.xxx): Los primeros tres números de la subnet
+* a(xxx.xxx.xxx): Los primeros tres números de la subnet creada
 
-Una vez ejecutado, si ha habido éxito, al conectarse al servidor AWS (con docker ssh 'aws-docker-machine') al ejecutar 'curl localhost:3000' debería aparecer una cadena de texto grande, la página web inicial. Quedan dos pasos antes de poder acceder públicamente. Primero (solo hay que hacerlo la primera vez) se debe acceder, en la página de gestion de instancias EC2 de AWS, al grupo de seguridad asociado a la máquina (en Security Groups, por defecto 'docker-machine'): 
+El comando utilizará el Vagrantfile, el cual utilizará cada uno de los archivos Dockerfile en los directorios oportunos para crear y configurar cada una de los contenedores que formarán el sistema. Las tareas que se ejecutan son las siguientes:
+
+* Se instala el software necesario en los contenedores
+* Se copia el código fuente en Node a las máquinas
+* Se abren los puertos necesarios, de forma que se pueda acceder a los servicios que ejecuten tanto desde la máquina anfitriona como entre ellos mismos (se asigna el puerto 3000 al MasterServer, el 3001 para el LoginService, el 3002 para el Matchmaker y a partir del 3003 para cada uno de los WorldMaster)
+* Se aasignando valores a las variables de entorno de los contenedores, de forma que conozcan la dirección de los demás servicios con los que necesiten contantar y queden configurados correctamente (por ejemplo, el número de jugadores por mundo de juego o la dirección de la base de datos para el LoginService)
+
+Una vez ejecutado, si ha habido éxito, al conectarse al servidor AWS (con docker ssh 'aws-docker-machine'), ejecutando 'curl localhost:3000' debería aparecer una cadena de texto grande, la página HTML inicial. Quedan por seguir dos pasos antes de poder acceder públicamente. Primero (solo hay que hacerlo la primera vez) se debe acceder, en la página de gestion de instancias EC2 de AWS, al grupo de seguridad asociado a la máquina (en Security Groups, por defecto 'docker-machine'): 
 
 ![Grupo de seguridad](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Security.png)
 
