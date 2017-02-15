@@ -286,9 +286,9 @@ El comando utilizará el Vagrantfile, el cual utilizará cada uno de los archivo
 * Se instala el software necesario en los contenedores
 * Se copia el código fuente en Node a las máquinas
 * Se abren los puertos necesarios, de forma que se pueda acceder a los servicios que ejecuten tanto desde la máquina anfitriona como entre ellos mismos (se asigna el puerto 3000 al MasterServer, el 3001 para el LoginService, el 3002 para el Matchmaker y a partir del 3003 para cada uno de los WorldMaster)
-* Se aasignando valores a las variables de entorno de los contenedores, de forma que conozcan la dirección de los demás servicios con los que necesiten contantar y queden configurados correctamente (por ejemplo, el número de jugadores por mundo de juego o la dirección de la base de datos para el LoginService)
+* Se asignan valores a las variables de entorno de los contenedores, de forma que conozcan la dirección de los demás servicios con los que necesiten comunicarse y queden configurados correctamente (por ejemplo, el número de jugadores por mundo de juego o la dirección de la base de datos para el LoginService)
 
-Una vez ejecutado, si ha habido éxito, al conectarse al servidor AWS (con docker ssh 'aws-docker-machine'), ejecutando 'curl localhost:3000' debería aparecer una cadena de texto grande, la página HTML inicial. Quedan por seguir dos pasos antes de poder acceder públicamente. Primero (solo hay que hacerlo la primera vez) se debe acceder, en la página de gestion de instancias EC2 de AWS, al grupo de seguridad asociado a la máquina (en Security Groups, por defecto 'docker-machine'): 
+Una vez ejecutado, si ha habido éxito, al conectarse por ssh al servidor AWS (con docker ssh 'aws-docker-machine'), ejecutando 'curl localhost:3000' debería aparecer una cadena de texto grande, la página HTML inicial. Quedan por seguir dos pasos antes de poder acceder públicamente. Primero (solo hay que hacerlo la primera vez) se debe acceder, en la página de gestion de instancias EC2 de AWS, al grupo de seguridad asociado a la máquina (en Security Groups, por defecto 'docker-machine'): 
 
 ![Grupo de seguridad](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Security.png)
 
