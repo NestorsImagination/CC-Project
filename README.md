@@ -287,6 +287,7 @@ El comando utilizará el Vagrantfile, el cual utilizará cada uno de los archivo
 * Se copia el código fuente en Node a las máquinas
 * Se abren los puertos necesarios, de forma que se pueda acceder a los servicios que ejecuten tanto desde la máquina anfitriona como entre ellos mismos (se asigna el puerto 3000 al MasterServer, el 3001 para el LoginService, el 3002 para el Matchmaker y a partir del 3003 para cada uno de los WorldMaster)
 * Se asignan valores a las variables de entorno de los contenedores, de forma que conozcan la dirección de los demás servicios con los que necesiten comunicarse y queden configurados correctamente (por ejemplo, el número de jugadores por mundo de juego o la dirección de la base de datos para el LoginService)
+* Se ejecutan los programas Node, de forma que el sistema quede desplegado y en funcionamiento
 
 Una vez ejecutado, si ha habido éxito, al conectarse por ssh al servidor AWS (con docker ssh 'aws-docker-machine'), ejecutando 'curl localhost:3000' debería aparecer una cadena de texto grande, la página HTML inicial. Quedan por seguir dos pasos antes de poder acceder públicamente. Primero (solo hay que hacerlo la primera vez) se debe acceder, en la página de gestion de instancias EC2 de AWS, al grupo de seguridad asociado a la máquina (en Security Groups, por defecto 'docker-machine'): 
 
@@ -306,7 +307,7 @@ O este otro alternativo si se está conectado a la máquina por medio de 'docker
 sudo iptables -A PREROUTING -t nat -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 3000
 ```
 
-Una vez hecho esto, si todo ha ido bien, será posible acceder al servidor por medio del DNS público (o la IP pública) que se muestra al seleccionar la máquina:
+Este comando ligará los puertos 80 y 3000, de forma que las peticiones que lleguen por el puerto 80 se redirijan al puerto 3000, donde está escuchando el MasterServer. Una vez hecho esto, si todo ha ido bien, será posible acceder al servidor por medio del DNS público (o la IP pública) que se muestra al seleccionar la máquina:
 
 ![Grupo de seguridad](https://raw.githubusercontent.com/NestorsImagination/Sample-Multiplayer-Shooter/master/Pics/Proto_Public.png)
 
